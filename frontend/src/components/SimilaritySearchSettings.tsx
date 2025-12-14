@@ -92,6 +92,7 @@ const SimilaritySearchSettings = ({
             variant="contained"
             onClick={handleUpload}
             disabled={
+              !smilesColumn ||
               targetSmiles.length > 5 ||
               targetSmiles.length < 1 ||
               similarityAnalysisInProcess

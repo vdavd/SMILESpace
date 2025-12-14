@@ -14,7 +14,7 @@ const HeaderBar = () => {
         sx={{
           textShadow: "3px 3px 8px rgba(0,0,0,1)",
           color: "#F0FBFF",
-          fontSize: 80,
+          fontSize: 70,
           letterSpacing: "0.03em",
           ml: 1,
           mr: 10,

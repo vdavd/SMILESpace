@@ -6,7 +6,6 @@ import {
   Divider,
   Fade,
   Link,
-  Slide,
   Stack,
   Typography,
 } from "@mui/material";
@@ -52,7 +51,7 @@ const ContactPage = () => {
             <HeaderBar />
           </Box>
         </Fade>
-        <Slide in={loaded} timeout={800} direction="up">
+        <Fade in={loaded} timeout={800}>
           <Box
             sx={{
               position: "relative",
@@ -104,7 +103,7 @@ const ContactPage = () => {
               </CardContent>
             </Card>
           </Box>
-        </Slide>
+        </Fade>
       </Box>
     </Container>
   );
