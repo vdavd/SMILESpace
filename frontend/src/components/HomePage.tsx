@@ -266,18 +266,32 @@ const HomePage = () => {
             }}
           >
             <Fade in={loaded} timeout={800}>
-              <Typography
+              <Box
                 sx={{
-                  textShadow: "8px 8px 10px rgba(0,0,0,1)",
-                  mt: 8,
-                  mb: 18,
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  mt: 6,
+                  mb: 12,
+                  gap: 2,
                 }}
-                variant="h1"
-                fontSize={80}
-                textAlign="center"
               >
-                Molecular Similarity Tool
-              </Typography>
+                <img src="images/SMILESpace_logo_only.png" height={180} />
+                <Typography
+                  sx={{
+                    textShadow: "4px 4px 8px rgba(0,0,0,1)",
+                    color: "#F0FBFF",
+                    fontSize: 100,
+                    letterSpacing: "0.04em",
+                    ml: 1,
+                    mr: 10,
+                  }}
+                  variant="h2"
+                  textAlign="center"
+                >
+                  SMILESpace
+                </Typography>
+              </Box>
             </Fade>
             <Fade in={loaded} timeout={800}>
               <Box
