@@ -63,8 +63,8 @@ const UserGuide = () => {
               display: "flex",
               flexDirection: "column",
               px: 4,
-              py: 3,
-              my: 4,
+              py: 1,
+              my: 1,
               borderRadius: 3,
               backgroundColor: "#FFFFFF00",
             }}
@@ -72,7 +72,7 @@ const UserGuide = () => {
             <Typography
               variant="h2"
               sx={{
-                mb: 2,
+                mb: 1,
                 textAlign: "center",
                 textShadow: "4px 4px 6px rgba(0,0,0,1)",
               }}
