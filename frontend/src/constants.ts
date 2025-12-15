@@ -1,4 +1,5 @@
-export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL + "/api";
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+export const apiBaseUrl = baseUrl + "/api";
 
 export const chemblApiBaseUrl =
   "https://www.ebi.ac.uk/chembl/api/data/substructure/";

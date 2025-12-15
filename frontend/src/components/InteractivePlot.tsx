@@ -500,6 +500,10 @@ const InteractivePlot = ({
                       "autoScale2d",
                       "resetScale2d",
                     ],
+                    toImageButtonOptions: {
+                      filename: "smilespace_plot",
+                      format: "svg",
+                    },
                   }}
                   onInitialized={() => setPlotReady(true)}
                   onUpdate={() => setPlotReady(true)}

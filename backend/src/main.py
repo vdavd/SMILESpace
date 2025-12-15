@@ -10,7 +10,7 @@ from util.analyze_data import analyze_similarity_data
 
 app = FastAPI()
 
-origins = os.getenv("FRONTEND_ORIGIN")
+origins = [os.getenv("FRONTEND_ORIGIN"), "http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
