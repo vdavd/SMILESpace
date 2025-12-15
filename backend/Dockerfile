@@ -6,7 +6,7 @@ FROM python:3.10.12 AS builder
 # Install system packages needed for building dependencies
 RUN apt-get update && apt-get install -y gcc curl && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry (official method)
+# Install Poetry 
 ENV POETRY_VERSION=2.1.1
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
@@ -14,7 +14,7 @@ ENV PATH="/root/.local/bin:$PATH"
 
 WORKDIR /app
 
-# Disable Poetry virtualenv creation (IMPORTANT)
+# Disable Poetry virtualenv creation
 RUN poetry config virtualenvs.create false
 
 # Copy only dependency files for caching

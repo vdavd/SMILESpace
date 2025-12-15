@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from io import StringIO
 from typing import List
@@ -6,9 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from util.validation import validate_dataframe, validate_target_smiles
 from util.analyze_data import analyze_plot_data
 from util.analyze_data import analyze_similarity_data
+
 app = FastAPI()
 
-origins = ["http://localhost:5173"]
+origins = os.getenv("FRONTEND_ORIGIN")
 
 app.add_middleware(
     CORSMiddleware,
