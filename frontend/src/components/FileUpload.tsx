@@ -14,6 +14,7 @@ interface FileUploadProps {
   dimRedMethod: DimRedMethodType;
   fingerPrintType: FingerPrintTypeType;
   removeOutliers: boolean;
+  outlierPercentage: number | null;
   numberNeighborsUmap: number | null;
   visualizationAnalysisInProcess: boolean;
   setVisualizationAnalysisInProcess: (
@@ -28,6 +29,7 @@ const FileUpload = ({
   dimRedMethod,
   fingerPrintType,
   removeOutliers,
+  outlierPercentage,
   numberNeighborsUmap,
   visualizationAnalysisInProcess,
   setVisualizationAnalysisInProcess,
@@ -43,12 +45,23 @@ const FileUpload = ({
         return numberNeighbors;
       }
     };
+
+    const checkOutlierPercentage = (
+      outlierPercentage: number | null
+    ): number => {
+      if (typeof outlierPercentage !== "number") {
+        return 1;
+      } else {
+        return outlierPercentage;
+      }
+    };
     if (parsedFile) {
       const params: PlotDataUploadParams = {
         smilesColumn: smilesColumn,
         dimRedMethod: dimRedMethod,
         fingerPrintType: fingerPrintType,
         removeOutliers: removeOutliers.toString(),
+        outlierPercentage: checkOutlierPercentage(outlierPercentage),
         numberNeighborsUmap: checkNumberNeighbors(numberNeighborsUmap),
       };
 

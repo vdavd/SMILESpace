@@ -128,17 +128,16 @@ def generate_svgs(df: pd.DataFrame):
 
     return pd.DataFrame({'SVG': svg_images })
 
-def outlier_detection(df: pd.DataFrame):
-    iforest = IsolationForest(random_state=42)
+def outlier_detection(df: pd.DataFrame, outlier_percentage: int):
+    iforest = IsolationForest(random_state=42, contamination=outlier_percentage/100)
     prediction = iforest.fit_predict(df)
     mask = prediction == 1
 
     return mask
-    df_without_outliers = df[mask].reset_index(drop=True)
 
 
 
-def analyze_plot_data(df: pd.DataFrame, smiles_column: str, dim_red_method: str, fingerprint_type: str, remove_outliers: bool, n_neighbors_umap: int):
+def analyze_plot_data(df: pd.DataFrame, smiles_column: str, dim_red_method: str, fingerprint_type: str, remove_outliers: bool, outlier_percentage: int, n_neighbors_umap: int):
     # Remove missing values from SMILES column
 
     df_without_na = remove_missing_smiles(df, smiles_column)
@@ -150,7 +149,7 @@ def analyze_plot_data(df: pd.DataFrame, smiles_column: str, dim_red_method: str,
 
     if remove_outliers:
         print("Removing outliers...")
-        mask = outlier_detection(fingerprint_df)
+        mask = outlier_detection(fingerprint_df, outlier_percentage)
         fingerprint_df = fingerprint_df[mask].reset_index(drop=True)
         df_with_mols = df_with_mols[mask].reset_index(drop=True)
         print(f"{(mask == False).sum()} outliers removed")

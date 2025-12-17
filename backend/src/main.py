@@ -30,6 +30,7 @@ async def process_plot_data(    request: Request,
     dim_red_method: str = Query(..., alias="dimRedMethod"),
     fingerprint_type: str = Query(..., alias="fingerPrintType"),
     remove_outliers: bool = Query(..., alias="removeOutliers"),
+    outlier_percentage: int = Query(..., alias="outlierPercentage"),
     number_neighbors_umap: int = Query(..., alias="numberNeighborsUmap")
 ):
     # Read raw CSV text from body
@@ -44,7 +45,7 @@ async def process_plot_data(    request: Request,
     if not validate_dataframe(df, smiles_column):
         return {"error": "SMILES not found"}
     
-    result_df = analyze_plot_data(df, smiles_column, dim_red_method, fingerprint_type, remove_outliers, number_neighbors_umap)
+    result_df = analyze_plot_data(df, smiles_column, dim_red_method, fingerprint_type, remove_outliers, outlier_percentage, number_neighbors_umap)
 
     return result_df.to_json()
 

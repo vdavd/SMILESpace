@@ -42,6 +42,7 @@ const HomePage = () => {
   const [fingerPrintType, setFingerPrintType] =
     useState<FingerPrintTypeType>("Morgan");
   const [removeOutliers, setremoveOutliers] = useState(false);
+  const [outlierPercentage, setOutlierPercentage] = useState<number | null>(1);
   const [numberNeighborsUmap, setNumberNeighborsUmap] = useState<number | null>(
     25
   );
@@ -188,6 +189,8 @@ const HomePage = () => {
                       setNumberNeighborsUmap={setNumberNeighborsUmap}
                       removeOutliers={removeOutliers}
                       setremoveOutliers={setremoveOutliers}
+                      outlierPercentage={outlierPercentage}
+                      setOutlierPercentage={setOutlierPercentage}
                     />
                     <UploadFile
                       parsedFile={parsedFile}
@@ -196,6 +199,7 @@ const HomePage = () => {
                       dimRedMethod={dimRedMethod}
                       fingerPrintType={fingerPrintType}
                       removeOutliers={removeOutliers}
+                      outlierPercentage={outlierPercentage}
                       numberNeighborsUmap={numberNeighborsUmap}
                       visualizationAnalysisInProcess={
                         visualizationAnalysisInProcess

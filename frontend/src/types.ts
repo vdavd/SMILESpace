@@ -10,6 +10,7 @@ export interface PlotDataUploadParams {
   dimRedMethod: string;
   fingerPrintType: FingerPrintTypeType;
   removeOutliers: string;
+  outlierPercentage: number;
   numberNeighborsUmap: number;
 }
 

@@ -29,6 +29,8 @@ interface VisualizationSettingsProps {
   setNumberNeighborsUmap: (numberNeighborsUmap: number | null) => void;
   removeOutliers: boolean;
   setremoveOutliers: (removeOutliers: boolean) => void;
+  outlierPercentage: number | null;
+  setOutlierPercentage: (outlierPercentage: number | null) => void;
 }
 
 const VisualizationSettings = ({
@@ -48,6 +50,8 @@ const VisualizationSettings = ({
   setNumberNeighborsUmap,
   removeOutliers,
   setremoveOutliers,
+  outlierPercentage,
+  setOutlierPercentage,
 }: VisualizationSettingsProps) => {
   return (
     <>
@@ -107,6 +111,8 @@ const VisualizationSettings = ({
           <RemoveOutliersSelect
             removeOutliers={removeOutliers}
             setremoveOutliers={setremoveOutliers}
+            outlierPercentage={outlierPercentage}
+            setOutlierPercentage={setOutlierPercentage}
           />
         </Box>
       </Box>
