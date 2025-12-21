@@ -22,7 +22,12 @@ const FingerPrintTypeSelect = ({
     const isFingerPrintTypeType = (
       value: string
     ): value is FingerPrintTypeType => {
-      return value === "Morgan" || value === "Topological" || value === "MACCS";
+      return (
+        value === "Morgan" ||
+        value === "Topological" ||
+        value === "MACCS" ||
+        value === "Chemeleon"
+      );
     };
 
     if (isFingerPrintTypeType(fingerPrintTypeValue)) {
@@ -47,6 +52,11 @@ const FingerPrintTypeSelect = ({
           label="RDKit Topological"
         />
         <FormControlLabel value="MACCS" control={<Radio />} label="MACCS" />
+        <FormControlLabel
+          value="Chemeleon"
+          control={<Radio />}
+          label="Chemeleon"
+        />
       </RadioGroup>
     </FormControl>
   );

@@ -1,6 +1,10 @@
 export type LabelType = "categorical" | "continuous" | "";
 export type DimRedMethodType = "PCA" | "UMAP";
-export type FingerPrintTypeType = "Morgan" | "Topological" | "MACCS";
+export type FingerPrintTypeType =
+  | "Morgan"
+  | "Topological"
+  | "MACCS"
+  | "Chemeleon";
 export type AnalysisMode = "Visualization" | "Similarity";
 
 export type RowObject = Record<string, any> & { molSimToolId: number };

@@ -4,9 +4,11 @@ from rdkit.Chem import AllChem, MolFromSmiles, Draw, MACCSkeys
 from rdkit import DataStructs
 from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
+from sklearn.preprocessing import normalize
 import urllib.parse
 import umap
 from fastapi import HTTPException
+from .chemeleon_fingerprint import CheMeleonFingerprint
 
 def remove_missing_smiles(df: pd.DataFrame, smiles_column: str):
     df_without_na = df.dropna(subset=[smiles_column])
@@ -73,6 +75,13 @@ def generate_fingerprints(df: pd.DataFrame, fingerprint_type: str, mode: str):
                 fingerprints.append(fingerprint_arr)
             elif mode == "similarity":
                 fingerprints.append(fingerprint)
+
+    elif fingerprint_type == "Chemeleon":
+        print('generating chemeleon fingerprints...')
+        chemeleon_fingerprint = CheMeleonFingerprint()
+        fingerprints = chemeleon_fingerprint(df["mol"])
+        # L2 normalize chemeleon fingerprints
+        fingerprints = normalize(fingerprints, "l2")
         
     if mode == "plot":
         # Convert fingerprint array into a pandas DataFrame    
@@ -144,7 +153,7 @@ def analyze_plot_data(df: pd.DataFrame, smiles_column: str, dim_red_method: str,
     # Generate mols from SMILES
     df_with_mols = generate_mols(df_without_na, smiles_column)
 
-    # Generate Morgan fingerprints
+    # Generate fingerprints
     fingerprint_df = generate_fingerprints(df_with_mols, fingerprint_type, "plot")
 
     if remove_outliers:
@@ -160,6 +169,18 @@ def analyze_plot_data(df: pd.DataFrame, smiles_column: str, dim_red_method: str,
 
     elif dim_red_method == "UMAP":
         principal_df = perform_umap(fingerprint_df, n_neighbors_umap)
+
+    # Scale the axes of the plot if they are too small or large
+    scale_pc1 = abs(min(principal_df["PC1"]) - max(principal_df["PC1"]))
+    scale_pc2 = abs(min(principal_df["PC2"]) - max(principal_df["PC2"]))
+
+    if scale_pc1 < 5 and scale_pc2 < 5:
+        principal_df["PC1"] = principal_df["PC1"] * (5/scale_pc1)
+        principal_df["PC2"] = principal_df["PC2"] * (5/scale_pc1)
+    
+    if scale_pc1 > 15 and scale_pc2 > 15:
+        principal_df["PC1"] = principal_df["PC1"] / (scale_pc1/10)
+        principal_df["PC2"] = principal_df["PC2"] / (scale_pc1/10)
 
     # Generate SVG images from mol objects
     df_with_svg = pd.concat([df_with_mols, generate_svgs(df_with_mols)], axis=1)
@@ -184,6 +205,9 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
             target_fingerprint = fingerprint_generator.GetFingerprint(target_mol)
         elif fingerprint_type == "MACCS":
             target_fingerprint = MACCSkeys.GenMACCSKeys(target_mol)
+        elif fingerprint_type == "Chemeleon":
+            chemeleon_fingerprint = CheMeleonFingerprint()
+            target_fingerprint = chemeleon_fingerprint([target_mol])
 
 
         # Remove missing values from SMILES column
@@ -192,11 +216,22 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
         # Generate mols from SMILES
         df_with_mols = generate_mols(df_without_na, smiles_column)
 
-        # Generate Morgan fingerprints
+        # Generate fingerprints
         fingerprint_list = generate_fingerprints(df_with_mols, fingerprint_type, "similarity")
 
-        similarities = DataStructs.BulkTanimotoSimilarity(target_fingerprint, fingerprint_list)
-        similarities_df = pd.DataFrame({f"similarity_{target}": similarities})
+        if fingerprint_type == "Chemeleon":
+            # L2 normalize fingerprints
+            target_norm = normalize(target_fingerprint, norm="l2")
+            fingerprints_norm = normalize(fingerprint_list, norm="l2")
+
+            # Calculate cosine similarity
+            similarities = fingerprints_norm @ target_norm[0]
+            similarities_df = pd.DataFrame({f"Similarity {target}": similarities})
+
+
+        else:
+            similarities = DataStructs.BulkTanimotoSimilarity(target_fingerprint, fingerprint_list)
+            similarities_df = pd.DataFrame({f"Similarity {target}": similarities})
 
         final_df = pd.concat([df_with_mols, similarities_df], axis=1)
 
@@ -215,6 +250,9 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
             target_fingerprints = [fingerprint_generator.GetFingerprint(target_mol) for target_mol in target_mols]
         elif fingerprint_type == "MACCS":
             target_fingerprints = [MACCSkeys.GenMACCSKeys(target_mol) for target_mol in target_mols]
+        elif fingerprint_type == "Chemeleon":
+            chemeleon_fingerprint = CheMeleonFingerprint()
+            target_fingerprints = chemeleon_fingerprint(target_mols)
 
 
         # Remove missing values from SMILES column
@@ -223,18 +261,29 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
         # Generate mols from SMILES
         df_with_mols = generate_mols(df_without_na, smiles_column)
 
-        # Generate Morgan fingerprints
+        # Generate fingerprints
         fingerprint_list = generate_fingerprints(df_with_mols, fingerprint_type, "similarity")
 
         similarities_df = pd.DataFrame({})
 
-        for target_fingerprint, target in zip(target_fingerprints, target_smiles):
-                similarities = DataStructs.BulkTanimotoSimilarity(target_fingerprint, fingerprint_list)
-                similarities_df[f"similarity_{target}"] = similarities
+        if fingerprint_type == "Chemeleon":
+            # L2 normalize fingerprints
+            targets_norm = normalize(target_fingerprints, norm="l2")
+            fingerprints_norm = normalize(fingerprint_list, norm="l2")
+
+            # Calculate cosine simialrity
+            for target_fingerprint, target in zip(targets_norm, target_smiles):
+                similarities = fingerprints_norm @ target_fingerprint
+                similarities_df[f"Similarity {target}"] = similarities
+
+        else:
+            for target_fingerprint, target in zip(target_fingerprints, target_smiles):
+                    similarities = DataStructs.BulkTanimotoSimilarity(target_fingerprint, fingerprint_list)
+                    similarities_df[f"Similarity {target}"] = similarities
 
         max_similarities = [max(row) for row in similarities_df.itertuples(index=False)]
 
-        similarities_df.insert(loc=0, column="max_similarity", value=max_similarities)
+        similarities_df.insert(loc=0, column="Max similarity", value=max_similarities)
 
         final_df = pd.concat([df_with_mols, similarities_df], axis=1)
 
