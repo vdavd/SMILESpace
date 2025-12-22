@@ -6,6 +6,7 @@ import {
   Fade,
   Paper,
   Slide,
+  Stack,
   Typography,
 } from "@mui/material";
 import UploadFile from "./FileUpload";
@@ -27,6 +28,8 @@ import VisualizationSettings from "./VisualizationSettings";
 import SimilaritySearchSettings from "./SimilaritySearchSettings";
 import AnalysisModeSelect from "./AnalysisModeSelect";
 import SimilaritySearchResult from "./SimilaritySearchResult";
+//@ts-ignore
+import "@fontsource/figtree";
 
 const HomePage = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -104,7 +107,7 @@ const HomePage = () => {
       <Box
         sx={{
           width: "90%",
-          minHeight: analyzedData ? "210vh" : "100vh",
+          minHeight: analyzedData ? "210vh" : "80vh",
           px: 4,
           py: 3,
         }}
@@ -265,36 +268,12 @@ const HomePage = () => {
             sx={{
               display: "flex",
               flexDirection: "column",
-              justifyContent: "center",
               alignItems: "center",
             }}
           >
             <Fade in={loaded} timeout={800}>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  mt: 6,
-                  mb: 12,
-                  gap: 2,
-                }}
-              >
-                <img src="images/SMILESpace_logo_only.png" height={180} />
-                <Typography
-                  sx={{
-                    textShadow: "4px 4px 8px rgba(0,0,0,1)",
-                    color: "#F0FBFF",
-                    fontSize: 100,
-                    letterSpacing: "0.04em",
-                    ml: 1,
-                    mr: 10,
-                  }}
-                  variant="h2"
-                  textAlign="center"
-                >
-                  SMILESpace
-                </Typography>
+              <Box>
+                <HeaderBar />
               </Box>
             </Fade>
             <Fade in={loaded} timeout={800}>
@@ -304,6 +283,8 @@ const HomePage = () => {
                   flexDirection: "row",
                   justifyContent: "center",
                   alignItems: "center",
+                  mt: 10,
+                  mb: 5,
                 }}
               >
                 <SelectFile
@@ -345,25 +326,54 @@ const HomePage = () => {
               </Alert>
             )}
             <Fade in={loaded} timeout={800}>
+              <Box sx={{ mt: 4, width: "80%" }}>
+                <Typography
+                  variant="h5"
+                  color="white"
+                  textAlign="center"
+                  sx={{
+                    textShadow: `
+    2px 2px 3px rgba(0,0,0,1),
+    4px 4px 8px rgba(0,0,0,1)
+  `,
+                    lineHeight: 1.8,
+                  }}
+                >
+                  SMILESpace is an interactive web tool for visualizing chemical
+                  space from SMILES input. It maps molecules into intuitive 2D
+                  PCA or UMAP projections using multiple fingerprint and
+                  embedding types, enabling visual similarity analysis, compound
+                  highlighting, and fast similarity searches between target
+                  molecules and chemical libraries—no programming required.
+                </Typography>
+              </Box>
+            </Fade>
+
+            <Fade in={loaded} timeout={800}>
               <Box
                 sx={{
                   position: "fixed",
                   bottom: 0,
                   left: 0,
                   width: "100%",
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: 10,
-                  pb: 2,
                 }}
               >
-                <img src="images/fimm_logo.png" height={120} />
-                <img
-                  src="images/HY__LD01_LogoFP_EN_B3____BW.png"
-                  height={140}
-                />
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  color="white"
+                  textAlign="center"
+                  sx={{
+                    textShadow: `
+    2px 2px 3px rgba(0,0,0,1),
+    4px 4px 8px rgba(0,0,0,1)
+  `,
+                    mb: 2,
+                  }}
+                >
+                  SMILESpace is free and available or all users, including
+                  commercial use. No login is required.
+                </Typography>
               </Box>
             </Fade>
           </Box>

@@ -4,7 +4,7 @@ import type { PlotParams } from "react-plotly.js";
 import type { Image } from "plotly.js";
 import { colorPalette50, colorScale } from "../constants";
 import { generateOutlineCircleSVG, getColorFromScale } from "../util/svgUtil";
-import { Box, Paper, Slider, Typography, Zoom } from "@mui/material";
+import { Box, Fade, Paper, Slider, Typography, Zoom } from "@mui/material";
 import type { DimRedMethodType } from "../types";
 import type { PlotDataObject } from "../types";
 import MoleculeInfo from "./MoleculeInfo";
@@ -470,17 +470,30 @@ const InteractivePlot = ({
                   borderRadius: 3,
                 }}
               >
-                <Box sx={{ width: 350 }}>
-                  <Typography>Molecule size</Typography>
-                  <Slider
-                    value={moleculeSize}
-                    defaultValue={0.5}
-                    min={0.02}
-                    max={2.0}
-                    step={0.005}
-                    onChange={handleMoleculeSizeChange}
-                    disabled={!zoomedView}
-                  />
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-around",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box sx={{ width: 350 }}>
+                    <Typography>Molecule size</Typography>
+                    <Slider
+                      value={moleculeSize}
+                      defaultValue={0.5}
+                      min={0.02}
+                      max={2.0}
+                      step={0.005}
+                      onChange={handleMoleculeSizeChange}
+                      disabled={!zoomedView}
+                    />
+                  </Box>
+                  <Fade in={zoomedView}>
+                    <Typography variant="body1">
+                      Double-click the plot to zoom out
+                    </Typography>
+                  </Fade>
                 </Box>
                 <Plot
                   data={traces}
@@ -504,6 +517,7 @@ const InteractivePlot = ({
                       filename: "smilespace_plot",
                       format: "svg",
                     },
+                    showTips: false,
                   }}
                   onInitialized={() => setPlotReady(true)}
                   onUpdate={() => setPlotReady(true)}

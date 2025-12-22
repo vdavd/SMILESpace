@@ -1,4 +1,6 @@
 import { Box, Typography } from "@mui/material";
+//@ts-ignore
+import "@fontsource/figtree";
 
 const HeaderBar = () => {
   return (
@@ -18,6 +20,7 @@ const HeaderBar = () => {
           letterSpacing: "0.03em",
           ml: 1,
           mr: 10,
+          fontFamily: "figtree",
         }}
         variant="h2"
         textAlign="center"
@@ -25,9 +28,9 @@ const HeaderBar = () => {
         SMILESpace
       </Typography>
       <Box sx={{ mr: 10 }}>
-        <img src="images/fimm_logo.png" height={80} />
+        <img src="images/HY__LD01_LogoFP_EN_B3____BW.png" height={110} />
       </Box>
-      <img src="images/HY__LD01_LogoFP_EN_B3____BW.png" height={90} />
+      <img src="images/fimm_logo.png" height={90} />
     </Box>
   );
 };

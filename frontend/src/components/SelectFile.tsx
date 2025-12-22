@@ -25,7 +25,7 @@ const FileSelect = ({
     if (event.target.files) {
       const file = event.target.files[0];
 
-      const MAX_SIZE_MB = 5;
+      const MAX_SIZE_MB = 10;
       const MAX_SIZE = MAX_SIZE_MB * 1024 * 1024;
 
       if (file.size > MAX_SIZE) {
