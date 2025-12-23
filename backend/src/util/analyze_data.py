@@ -23,10 +23,10 @@ def generate_mols(df: pd.DataFrame, smiles_column: str):
         mol = MolFromSmiles(str(smiles), sanitize=True)
         molecules.append(mol)
     
-    df['mol'] = molecules
+    df['smilespace_mol'] = molecules
 
     # Remove rows where mols couldn't be generated from smiles
-    valid_mols_df = df.dropna(subset=['mol'])
+    valid_mols_df = df.dropna(subset=['smilespace_mol'])
     valid_mols_df = valid_mols_df.reset_index(drop=True)
     print(f"{len(df)-len(valid_mols_df)} rows removed because of malformed smiles")
 
@@ -41,7 +41,7 @@ def generate_fingerprints(df: pd.DataFrame, fingerprint_type: str, mode: str):
     if fingerprint_type == "Morgan":
         fingerprint_generator = AllChem.GetMorganGenerator(radius=2) 
         print('generating fingerprints...')
-        for mol in df['mol']:
+        for mol in df['smilespace_mol']:
             fingerprint = fingerprint_generator.GetFingerprint(mol)
             if mode == "plot":
                 fingerprint_arr = np.zeros((0,), dtype=int)
@@ -54,7 +54,7 @@ def generate_fingerprints(df: pd.DataFrame, fingerprint_type: str, mode: str):
     elif fingerprint_type == "Topological":
         fingerprint_generator = AllChem.GetRDKitFPGenerator()
         print('generating fingerprints...')
-        for mol in df['mol']:
+        for mol in df['smilespace_mol']:
             fingerprint = fingerprint_generator.GetFingerprint(mol)
             if mode == "plot":
                 fingerprint_arr = np.zeros((0,), dtype=int)
@@ -66,7 +66,7 @@ def generate_fingerprints(df: pd.DataFrame, fingerprint_type: str, mode: str):
     
     elif fingerprint_type == "MACCS":
         print('generating fingerprints...')
-        for mol in df['mol']:
+        for mol in df['smilespace_mol']:
             fingerprint = MACCSkeys.GenMACCSKeys(mol)
             if mode == "plot":
                 fingerprint_arr = np.zeros((0,), dtype=int)
@@ -79,7 +79,7 @@ def generate_fingerprints(df: pd.DataFrame, fingerprint_type: str, mode: str):
     elif fingerprint_type == "Chemeleon":
         print('generating chemeleon fingerprints...')
         chemeleon_fingerprint = CheMeleonFingerprint()
-        fingerprints = chemeleon_fingerprint(df["mol"])
+        fingerprints = chemeleon_fingerprint(df["smilespace_mol"])
         # L2 normalize chemeleon fingerprints
         fingerprints = normalize(fingerprints, "l2")
         
@@ -131,7 +131,7 @@ def mol_to_svg_uri(mol, width=200, height=200):
 def generate_svgs(df: pd.DataFrame):
     print('generating svg images...')
     svg_images = [
-        mol_to_svg_uri(row["mol"])
+        mol_to_svg_uri(row["smilespace_mol"])
         for _, row in df.iterrows()
     ]
 
@@ -235,7 +235,7 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
 
         final_df = pd.concat([df_with_mols, similarities_df], axis=1)
 
-        final_df.drop(columns=["mol"], axis=1, inplace=True)
+        final_df.drop(columns=["smilespace_mol"], axis=1, inplace=True)
 
         return final_df
     
@@ -287,7 +287,7 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
 
         final_df = pd.concat([df_with_mols, similarities_df], axis=1)
 
-        final_df.drop(columns=["mol"], axis=1, inplace=True)
+        final_df.drop(columns=["smilespace_mol"], axis=1, inplace=True)
 
         return final_df
 
