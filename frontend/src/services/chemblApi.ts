@@ -2,9 +2,7 @@ import axios from "axios";
 import { chemblApiBaseUrl } from "../constants";
 
 export const getMoleculeData = async (smiles: string) => {
-  console.log(smiles);
   const encodedSmiles = encodeURIComponent(smiles);
-  console.log(encodedSmiles);
   const url = chemblApiBaseUrl + encodedSmiles + "?format=json";
 
   try {

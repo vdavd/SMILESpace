@@ -6,7 +6,6 @@ import {
   Fade,
   Paper,
   Slide,
-  Stack,
   Typography,
 } from "@mui/material";
 import UploadFile from "./FileUpload";
@@ -55,6 +54,7 @@ const HomePage = () => {
     useState(false);
   const [fileReady, setFileReady] = useState(false);
   const [fileSelectError, setFileSelectError] = useState<string | null>(null);
+  const [plotDataError, setPlotDataError] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [analysisMode, setAnalysisMode] =
     useState<AnalysisMode>("Visualization");
@@ -218,6 +218,8 @@ const HomePage = () => {
                           labelType
                         )
                       }
+                      plotDataError={plotDataError}
+                      setPlotDataError={setPlotDataError}
                     />
                   </>
                 )}
@@ -252,6 +254,7 @@ const HomePage = () => {
                     highlightedSmiles={highlightedSmiles}
                     dimRedMethod={dimRedMethod}
                     removeOutliers={removeOutliers}
+                    setPlotDataError={setPlotDataError}
                   />
                 )
               )}

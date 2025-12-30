@@ -5,7 +5,6 @@ import type {
   PlotDataUploadParams,
   FingerPrintTypeType,
 } from "../types";
-import { useState } from "react";
 
 interface FileUploadProps {
   parsedFile: string;
@@ -21,6 +20,8 @@ interface FileUploadProps {
     visualizationAnalysisInProcess: boolean
   ) => void;
   buttonDisabled: boolean;
+  plotDataError: string;
+  setPlotDataError: (plotDataError: string) => void;
 }
 const FileUpload = ({
   parsedFile,
@@ -34,9 +35,9 @@ const FileUpload = ({
   visualizationAnalysisInProcess,
   setVisualizationAnalysisInProcess,
   buttonDisabled,
+  plotDataError,
+  setPlotDataError,
 }: FileUploadProps) => {
-  const [plotDataError, setPlotDataError] = useState("");
-
   const handleUpload = async () => {
     const checkNumberNeighbors = (numberNeighbors: number | null): number => {
       if (typeof numberNeighbors !== "number") {

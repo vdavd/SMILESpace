@@ -61,7 +61,6 @@ const DisplayData = ({
             molSimToolId: index,
             ...item,
           }));
-          console.log(dataWithIds);
           setRows(dataWithIds);
           const colsWithID = ["molSimToolId", ...columns];
           setColumns(colsWithID);
@@ -106,7 +105,6 @@ const DisplayData = ({
   }, [rows, gridApiRef]);
 
   const handleHighlightSelectionChange = (selection: GridRowSelectionModel) => {
-    console.log("ids selection: " + [...selection.ids.keys()]);
     const previousSelection = [...rowSelectionModel.ids.keys()];
     const newSelection = [...selection.ids.keys()];
     const isCheckboxSelectionHeaderClick =
@@ -115,7 +113,6 @@ const DisplayData = ({
 
     if (isCheckboxSelectionHeaderClick) {
       // if clicked, deselect all rows
-      console.log("selectall");
       setRowSelectionModel({
         type: "include",
         ids: new Set(),
@@ -132,8 +129,6 @@ const DisplayData = ({
     const idsToRemove = highlightedSmiles.filter(
       (id) => !selectedIds.includes(id)
     );
-    console.log("idsToAdd: " + idsToAdd);
-    console.log("idsToRemove: " + idsToRemove);
     setHighlightedSmiles(selectedIds);
 
     if (smilesColumn) {

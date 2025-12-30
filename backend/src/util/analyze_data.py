@@ -137,7 +137,7 @@ def perform_pca(fingerprint_df: pd.DataFrame):
     principal_components = pca.fit_transform(fingerprint_df)
 
     # Convert the results to a DataFrame
-    principal_df = pd.DataFrame(data=principal_components, columns=['PC1', 'PC2'])
+    principal_df = pd.DataFrame(data=principal_components, columns=["PC1_smilespace", "PC2_smilespace"])
 
     return principal_df
 
@@ -149,7 +149,7 @@ def perform_umap(fingerprint_df: pd.DataFrame, n_neighbors):
     embedding = reducer.fit_transform(fingerprint_df)
 
     # Convert the results to a DataFrame
-    principal_df = pd.DataFrame(data=embedding, columns=['PC1', 'PC2'])
+    principal_df = pd.DataFrame(data=embedding, columns=["PC1_smilespace", "PC2_smilespace"])
 
     return principal_df
 
@@ -217,16 +217,16 @@ def analyze_plot_data(df: pd.DataFrame, smiles_column: str, dim_red_method: str,
         principal_df = perform_umap(fingerprint_df, n_neighbors_umap)
 
     # Scale the axes of the plot if they are too small or large
-    scale_pc1 = abs(min(principal_df["PC1"]) - max(principal_df["PC1"]))
-    scale_pc2 = abs(min(principal_df["PC2"]) - max(principal_df["PC2"]))
+    scale_pc1 = abs(min(principal_df["PC1_smilespace"]) - max(principal_df["PC1_smilespace"]))
+    scale_pc2 = abs(min(principal_df["PC2_smilespace"]) - max(principal_df["PC2_smilespace"]))
 
     if scale_pc1 < 5 and scale_pc2 < 5:
-        principal_df["PC1"] = principal_df["PC1"] * (5/scale_pc1)
-        principal_df["PC2"] = principal_df["PC2"] * (5/scale_pc1)
+        principal_df["PC1_smilespace"] = principal_df["PC1_smilespace"] * (5/scale_pc1)
+        principal_df["PC2_smilespace"] = principal_df["PC2_smilespace"] * (5/scale_pc1)
     
     if scale_pc1 > 15 and scale_pc2 > 15:
-        principal_df["PC1"] = principal_df["PC1"] / (scale_pc1/10)
-        principal_df["PC2"] = principal_df["PC2"] / (scale_pc1/10)
+        principal_df["PC1_smilespace"] = principal_df["PC1_smilespace"] / (scale_pc1/10)
+        principal_df["PC2_smilespace"] = principal_df["PC2_smilespace"] / (scale_pc1/10)
 
     # Generate SVG images from mol objects
     df_with_svg = pd.concat([df_with_mols, generate_svgs(df_with_mols)], axis=1)

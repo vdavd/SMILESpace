@@ -27,10 +27,8 @@ const SimilaritySearchResult = ({
   useEffect(() => {
     if (similarityData) {
       const objectData = JSON.parse(similarityData);
-      console.log(objectData);
       setRows(objectData);
       const columns = Object.keys(objectData[0]);
-      console.log(columns);
       setColumns(columns);
     }
   }, [similarityData]);

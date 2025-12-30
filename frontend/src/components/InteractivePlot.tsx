@@ -17,6 +17,7 @@ interface InteractivePlotProps {
   highlightedSmiles: string[];
   dimRedMethod: DimRedMethodType;
   removeOutliers: boolean;
+  setPlotDataError: (plotDataError: string) => void;
 }
 
 const InteractivePlot = ({
@@ -27,6 +28,7 @@ const InteractivePlot = ({
   highlightedSmiles,
   dimRedMethod,
   removeOutliers,
+  setPlotDataError,
 }: InteractivePlotProps) => {
   const [parsedData, setParsedData] = useState<PlotDataObject[] | null>(null);
   const [plotData, setPlotData] = useState<PlotDataObject[] | null>(null);
@@ -79,8 +81,8 @@ const InteractivePlot = ({
 
       const id = Object.values(objectData.molSimToolId).map((id) => String(id));
       const smiles = Object.values(objectData[smilesColumn]);
-      const pc1 = Object.values(objectData.PC1);
-      const pc2 = Object.values(objectData.PC2);
+      const pc1 = Object.values(objectData.PC1_smilespace);
+      const pc2 = Object.values(objectData.PC2_smilespace);
       const label = Object.values(objectData[labelColumn]).map((value) =>
         value === null ? "NA" : value
       );
@@ -109,7 +111,7 @@ const InteractivePlot = ({
         });
         setParsedData(parsedDataObjectList);
       } else {
-        console.log("Type checking didn't go through in parseData");
+        console.error("Type checking didn't go through in parseData");
         return null;
       }
     };
@@ -149,7 +151,7 @@ const InteractivePlot = ({
 
         // Check that number of labels isn't over 30
         if (labels.length > 30) {
-          console.log(
+          setPlotDataError(
             `Maximum of 30 categories supported. Your number of categories: ${labels.length}`
           );
           return;
