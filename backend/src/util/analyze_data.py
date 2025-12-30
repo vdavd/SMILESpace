@@ -10,9 +10,8 @@ from sklearn.preprocessing import normalize
 import urllib.parse
 import umap
 from fastapi import HTTPException
-from e3fp.pipeline import fprints_from_smiles
-from e3fp.fingerprint.fprint import Fingerprint
-from python_utilities.parallel import Parallelizer
+import torch
+from transformers import AutoTokenizer, AutoModel
 from .chemeleon_fingerprint import CheMeleonFingerprint
 
 
@@ -95,29 +94,34 @@ def generate_fingerprints(df: pd.DataFrame, fingerprint_type: str, mode: str):
         return fingerprint_df
     else:
         return fingerprints
-    
-def generate_e3fp_fingerprints(df: pd.DataFrame, smiles_column: str, mode: str):
-    fingerprints = []
+
+
+def chemberta_fingerprints(smiles_list, fingerprint_type):
+    if fingerprint_type == "ChembertaMLM":       
+        MODEL_NAME = "DeepChem/ChemBERTa-77M-MLM"
+    elif fingerprint_type == "ChembertaMTR":
+        MODEL_NAME = "DeepChem/ChemBERTa-77M-MTR"
+
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    model = AutoModel.from_pretrained(MODEL_NAME)
+    model.eval()
+    inputs = tokenizer(
+        smiles_list,
+        return_tensors="pt",
+        padding=True,
+        truncation=True
+    )   
+    with torch.no_grad():
+        outputs = model(**inputs)
+    # CLS embeddings
+    return outputs.last_hidden_state[:, 0, :]    
+
+def generate_chemberta_fingerprints(df: pd.DataFrame, smiles_column: str, mode: str, fingerprint_type: str):
     print('generating fingerprints...')
-    fprint_params = {'bits': 2048,}
-    confgen_params = {'first': 3}
+    fingerprints = chemberta_fingerprints(df[smiles_column].values.tolist(), fingerprint_type).cpu().numpy()
 
-    smiles_iter = (
-    (smiles, name)
-    for smiles, name in zip(df[smiles_column], df["molSimToolId"])
-)
-    kwargs = {"confgen_params": confgen_params, "fprint_params": fprint_params}
-    parallelizer = Parallelizer(parallel_mode="processes")
-    all_fps = parallelizer.run(fprints_from_smiles, smiles_iter, kwargs=kwargs)
-
-
-    for fp in all_fps: 
-        fp_list = fp[0]
-        fingerprint = reduce(operator.or_, fp_list)
-        print(fingerprint)
-        bitvec = np.zeros(fingerprint.bits, dtype=int)
-        bitvec[list(fingerprint.indices)] = 1
-        fingerprints.append(bitvec)
+    # L2 normalize embeddings
+    fingerprints = normalize(fingerprints, "l2")
 
     if mode == "plot":
         # Convert fingerprint array into a pandas DataFrame
@@ -190,9 +194,9 @@ def analyze_plot_data(df: pd.DataFrame, smiles_column: str, dim_red_method: str,
     # Generate mols from SMILES
     df_with_mols = generate_mols(df_without_na, smiles_column)
 
-    if fingerprint_type == "e3fp":
-        # Generate 3D conformers and fingerprints
-        fingerprint_df = generate_e3fp_fingerprints(df_with_mols, smiles_column, "plot")
+    if fingerprint_type == "ChembertaMLM" or fingerprint_type == "ChembertaMTR":
+        # Generate chemberta fingerprints
+        fingerprint_df = generate_chemberta_fingerprints(df_with_mols, smiles_column, "plot", fingerprint_type)
     
     else:
         # Generate fingerprints
@@ -250,6 +254,8 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
         elif fingerprint_type == "Chemeleon":
             chemeleon_fingerprint = CheMeleonFingerprint()
             target_fingerprint = chemeleon_fingerprint([target_mol])
+        elif fingerprint_type == "ChembertaMLM" or fingerprint_type == "ChembertaMTR":
+            target_fingerprint = chemberta_fingerprints(target, fingerprint_type).cpu().numpy()
 
 
         # Remove missing values from SMILES column
@@ -258,16 +264,20 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
         # Generate mols from SMILES
         df_with_mols = generate_mols(df_without_na, smiles_column)
 
-        # Generate fingerprints
-        fingerprint_list = generate_fingerprints(df_with_mols, fingerprint_type, "similarity")
+        if fingerprint_type == "ChembertaMLM" or fingerprint_type == "ChembertaMTR":
+            # Generate chemberta fingerprints
+            fingerprint_list = generate_chemberta_fingerprints(df_with_mols, smiles_column, "similarity", fingerprint_type)
 
-        if fingerprint_type == "Chemeleon":
-            # L2 normalize fingerprints
+        else:
+            # Generate fingerprints
+            fingerprint_list = generate_fingerprints(df_with_mols, fingerprint_type, "similarity")
+
+        if fingerprint_type == "Chemeleon" or fingerprint_type == "ChembertaMLM" or fingerprint_type == "ChembertaMTR":
+            # L2 normalize target fingerprint
             target_norm = normalize(target_fingerprint, norm="l2")
-            fingerprints_norm = normalize(fingerprint_list, norm="l2")
 
             # Calculate cosine similarity
-            similarities = fingerprints_norm @ target_norm[0]
+            similarities = fingerprint_list @ target_norm[0]
             similarities_df = pd.DataFrame({f"Similarity {target}": similarities})
 
 
@@ -295,6 +305,8 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
         elif fingerprint_type == "Chemeleon":
             chemeleon_fingerprint = CheMeleonFingerprint()
             target_fingerprints = chemeleon_fingerprint(target_mols)
+        elif fingerprint_type == "ChembertaMLM" or fingerprint_type == "ChembertaMTR":
+            target_fingerprints = chemberta_fingerprints(target_smiles, fingerprint_type).cpu().numpy()
 
 
         # Remove missing values from SMILES column
@@ -303,19 +315,23 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
         # Generate mols from SMILES
         df_with_mols = generate_mols(df_without_na, smiles_column)
 
-        # Generate fingerprints
-        fingerprint_list = generate_fingerprints(df_with_mols, fingerprint_type, "similarity")
+        if fingerprint_type == "ChembertaMLM" or fingerprint_type == "ChembertaMTR":
+            # Generate chemberta fingerprints
+            fingerprint_list = generate_chemberta_fingerprints(df_with_mols, smiles_column, "similarity", fingerprint_type)
+
+        else:
+            # Generate fingerprints
+            fingerprint_list = generate_fingerprints(df_with_mols, fingerprint_type, "similarity")
 
         similarities_df = pd.DataFrame({})
 
-        if fingerprint_type == "Chemeleon":
+        if fingerprint_type == "Chemeleon" or fingerprint_type == "ChembertaMLM" or fingerprint_type == "ChembertaMTR":
             # L2 normalize fingerprints
             targets_norm = normalize(target_fingerprints, norm="l2")
-            fingerprints_norm = normalize(fingerprint_list, norm="l2")
 
             # Calculate cosine simialrity
             for target_fingerprint, target in zip(targets_norm, target_smiles):
-                similarities = fingerprints_norm @ target_fingerprint
+                similarities = fingerprint_list @ target_fingerprint
                 similarities_df[f"Similarity {target}"] = similarities
 
         else:
