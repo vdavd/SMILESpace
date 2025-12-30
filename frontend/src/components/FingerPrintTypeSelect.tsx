@@ -26,7 +26,8 @@ const FingerPrintTypeSelect = ({
         value === "Morgan" ||
         value === "Topological" ||
         value === "MACCS" ||
-        value === "Chemeleon"
+        value === "Chemeleon" ||
+        value == "e3fp"
       );
     };
 
@@ -55,8 +56,9 @@ const FingerPrintTypeSelect = ({
         <FormControlLabel
           value="Chemeleon"
           control={<Radio />}
-          label="Chemeleon"
+          label="CheMeleon"
         />
+        <FormControlLabel value="e3fp" control={<Radio />} label="e3fp" />
       </RadioGroup>
     </FormControl>
   );

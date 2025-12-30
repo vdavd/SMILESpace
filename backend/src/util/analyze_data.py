@@ -1,3 +1,5 @@
+from functools import reduce
+import operator
 import pandas as pd
 import numpy as np
 from rdkit.Chem import AllChem, MolFromSmiles, Draw, MACCSkeys
@@ -8,7 +10,11 @@ from sklearn.preprocessing import normalize
 import urllib.parse
 import umap
 from fastapi import HTTPException
+from e3fp.pipeline import fprints_from_smiles
+from e3fp.fingerprint.fprint import Fingerprint
+from python_utilities.parallel import Parallelizer
 from .chemeleon_fingerprint import CheMeleonFingerprint
+
 
 def remove_missing_smiles(df: pd.DataFrame, smiles_column: str):
     df_without_na = df.dropna(subset=[smiles_column])
@@ -89,6 +95,36 @@ def generate_fingerprints(df: pd.DataFrame, fingerprint_type: str, mode: str):
         return fingerprint_df
     else:
         return fingerprints
+    
+def generate_e3fp_fingerprints(df: pd.DataFrame, smiles_column: str, mode: str):
+    fingerprints = []
+    print('generating fingerprints...')
+    fprint_params = {'bits': 2048,}
+    confgen_params = {'first': 3}
+
+    smiles_iter = (
+    (smiles, name)
+    for smiles, name in zip(df[smiles_column], df["molSimToolId"])
+)
+    kwargs = {"confgen_params": confgen_params, "fprint_params": fprint_params}
+    parallelizer = Parallelizer(parallel_mode="processes")
+    all_fps = parallelizer.run(fprints_from_smiles, smiles_iter, kwargs=kwargs)
+
+
+    for fp in all_fps: 
+        fp_list = fp[0]
+        fingerprint = reduce(operator.or_, fp_list)
+        print(fingerprint)
+        bitvec = np.zeros(fingerprint.bits, dtype=int)
+        bitvec[list(fingerprint.indices)] = 1
+        fingerprints.append(bitvec)
+
+    if mode == "plot":
+        # Convert fingerprint array into a pandas DataFrame
+        fingerprint_df = pd.DataFrame(fingerprints)
+        return fingerprint_df
+    else:
+        return fingerprints
 
 def perform_pca(fingerprint_df: pd.DataFrame):
     print("performing pca...")
@@ -150,11 +186,17 @@ def analyze_plot_data(df: pd.DataFrame, smiles_column: str, dim_red_method: str,
     # Remove missing values from SMILES column
 
     df_without_na = remove_missing_smiles(df, smiles_column)
+
     # Generate mols from SMILES
     df_with_mols = generate_mols(df_without_na, smiles_column)
 
-    # Generate fingerprints
-    fingerprint_df = generate_fingerprints(df_with_mols, fingerprint_type, "plot")
+    if fingerprint_type == "e3fp":
+        # Generate 3D conformers and fingerprints
+        fingerprint_df = generate_e3fp_fingerprints(df_with_mols, smiles_column, "plot")
+    
+    else:
+        # Generate fingerprints
+        fingerprint_df = generate_fingerprints(df_with_mols, fingerprint_type, "plot")
 
     if remove_outliers:
         print("Removing outliers...")

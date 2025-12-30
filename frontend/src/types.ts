@@ -4,7 +4,8 @@ export type FingerPrintTypeType =
   | "Morgan"
   | "Topological"
   | "MACCS"
-  | "Chemeleon";
+  | "Chemeleon"
+  | "e3fp";
 export type AnalysisMode = "Visualization" | "Similarity";
 
 export type RowObject = Record<string, any> & { molSimToolId: number };
