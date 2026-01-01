@@ -8,6 +8,7 @@ import { Box, Fade, Paper, Slider, Typography, Zoom } from "@mui/material";
 import type { DimRedMethodType } from "../types";
 import type { PlotDataObject } from "../types";
 import MoleculeInfo from "./MoleculeInfo";
+import DownloadFingerprints from "./DownloadFingerprints";
 
 interface InteractivePlotProps {
   analyzedData: string;
@@ -18,6 +19,7 @@ interface InteractivePlotProps {
   dimRedMethod: DimRedMethodType;
   removeOutliers: boolean;
   setPlotDataError: (plotDataError: string) => void;
+  fingerprintData: Record<string, any>[];
 }
 
 const InteractivePlot = ({
@@ -29,6 +31,7 @@ const InteractivePlot = ({
   dimRedMethod,
   removeOutliers,
   setPlotDataError,
+  fingerprintData,
 }: InteractivePlotProps) => {
   const [parsedData, setParsedData] = useState<PlotDataObject[] | null>(null);
   const [plotData, setPlotData] = useState<PlotDataObject[] | null>(null);
@@ -523,6 +526,11 @@ const InteractivePlot = ({
                   }}
                   onInitialized={() => setPlotReady(true)}
                   onUpdate={() => setPlotReady(true)}
+                />
+                <DownloadFingerprints
+                  fingerprintData={fingerprintData}
+                  filename="smilespace_fingerprints.csv"
+                  buttonText="Download Fingerprints"
                 />
               </Paper>
             </Zoom>

@@ -19,6 +19,10 @@ interface SimilaritySearchSettingsProps {
   setSimilarityAnalysisInProcess: (
     similarityAnalysisInProcess: boolean
   ) => void;
+  setSimilarityFingerprints: (
+    similarityFingerprints: Record<string, any>[]
+  ) => void;
+  setTargetFingerprints: (targetFingerprints: Record<string, any>[]) => void;
 }
 
 const SimilaritySearchSettings = ({
@@ -31,6 +35,8 @@ const SimilaritySearchSettings = ({
   setSimilarityData,
   similarityAnalysisInProcess,
   setSimilarityAnalysisInProcess,
+  setSimilarityFingerprints,
+  setTargetFingerprints,
 }: SimilaritySearchSettingsProps) => {
   const [similarityDataError, setSimilarityDataError] = useState("");
   const [fingerPrintType, setFingerPrintType] =
@@ -56,8 +62,13 @@ const SimilaritySearchSettings = ({
       };
       try {
         setSimilarityAnalysisInProcess(true);
-        const data: string = await uploadSimilarityData(parsedFile, params);
-        setSimilarityData(data);
+        const data = await uploadSimilarityData(parsedFile, params);
+        const fingerprints = data.fingerprints;
+        const targetFingerprints = data.targetFingerprints;
+        console.log(fingerprints);
+        setSimilarityFingerprints(fingerprints);
+        setTargetFingerprints(targetFingerprints);
+        setSimilarityData(JSON.stringify(data.similarityData));
         setSimilarityAnalysisInProcess(false);
       } catch (err: any) {
         setSimilarityAnalysisInProcess(false);

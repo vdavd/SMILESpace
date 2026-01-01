@@ -22,6 +22,7 @@ interface FileUploadProps {
   buttonDisabled: boolean;
   plotDataError: string;
   setPlotDataError: (plotDataError: string) => void;
+  setFingerprintData: (fingerprintData: Record<string, any>[]) => void;
 }
 const FileUpload = ({
   parsedFile,
@@ -37,6 +38,7 @@ const FileUpload = ({
   buttonDisabled,
   plotDataError,
   setPlotDataError,
+  setFingerprintData,
 }: FileUploadProps) => {
   const handleUpload = async () => {
     const checkNumberNeighbors = (numberNeighbors: number | null): number => {
@@ -70,9 +72,11 @@ const FileUpload = ({
       try {
         setVisualizationAnalysisInProcess(true);
         const data = await uploadPlotData(parsedFile, params);
-        setAnalyzedData(data);
+        setAnalyzedData(JSON.stringify(data.visualizationData));
+        setFingerprintData(data.fingerprints);
         setVisualizationAnalysisInProcess(false);
       } catch (err: any) {
+        console.error(err);
         setVisualizationAnalysisInProcess(false);
         setPlotDataError(err.message);
       }

@@ -60,6 +60,15 @@ const HomePage = () => {
     useState<AnalysisMode>("Visualization");
   const [targetSmiles, setTargetSmiles] = useState<string[]>([]);
   const [similarityData, setSimilarityData] = useState("");
+  const [fingerprintData, setFingerprintData] = useState<Record<string, any>[]>(
+    []
+  );
+  const [similarityFingerprints, setSimilarityFingerprints] = useState<
+    Record<string, any>[]
+  >([]);
+  const [targetFingerprints, setTargetFingerprints] = useState<
+    Record<string, any>[]
+  >([]);
 
   const visualizationScrollTargetRef = useRef<HTMLDivElement>(null);
   const similarityScrollTargetRef = useRef<HTMLDivElement>(null);
@@ -220,6 +229,7 @@ const HomePage = () => {
                       }
                       plotDataError={plotDataError}
                       setPlotDataError={setPlotDataError}
+                      setFingerprintData={setFingerprintData}
                     />
                   </>
                 )}
@@ -236,6 +246,8 @@ const HomePage = () => {
                     setSimilarityAnalysisInProcess={
                       setSimilarityAnalysisInProcess
                     }
+                    setSimilarityFingerprints={setSimilarityFingerprints}
+                    setTargetFingerprints={setTargetFingerprints}
                   />
                 )}
               </Paper>
@@ -255,6 +267,7 @@ const HomePage = () => {
                     dimRedMethod={dimRedMethod}
                     removeOutliers={removeOutliers}
                     setPlotDataError={setPlotDataError}
+                    fingerprintData={fingerprintData}
                   />
                 )
               )}
@@ -262,7 +275,11 @@ const HomePage = () => {
 
             <div ref={similarityScrollTargetRef}>
               {similarityData && (
-                <SimilaritySearchResult similarityData={similarityData} />
+                <SimilaritySearchResult
+                  similarityData={similarityData}
+                  similarityFingerprints={similarityFingerprints}
+                  targetFingerprints={targetFingerprints}
+                />
               )}
             </div>
           </>

@@ -1,16 +1,21 @@
 import { DataGrid, type GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import SearchToolbar from "./CustomToolbar";
-import { Paper, Typography, Zoom } from "@mui/material";
+import { Paper, Stack, Typography, Zoom } from "@mui/material";
+import DownloadFingerprints from "./DownloadFingerprints";
 
 interface SimilaritySearchresultProps {
   similarityData: string;
+  similarityFingerprints: Record<string, any>[];
+  targetFingerprints: Record<string, any>[];
 }
 
 type RowObject = Record<string, any> & { molSimToolId: number };
 
 const SimilaritySearchResult = ({
   similarityData,
+  similarityFingerprints,
+  targetFingerprints,
 }: SimilaritySearchresultProps) => {
   const [rows, setRows] = useState<RowObject[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
@@ -79,6 +84,18 @@ const SimilaritySearchResult = ({
           showToolbar
           disableRowSelectionOnClick
         />
+        <Stack direction="row" gap={5}>
+          <DownloadFingerprints
+            fingerprintData={similarityFingerprints}
+            filename="smilespace_fingerprints.csv"
+            buttonText="Download Fingerprints"
+          />
+          <DownloadFingerprints
+            fingerprintData={targetFingerprints}
+            filename="smilespace_target_fingerprints.csv"
+            buttonText="Download target Molecule Fingerprints"
+          />
+        </Stack>
       </Paper>
     </Zoom>
   );

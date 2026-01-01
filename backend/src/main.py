@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import json
 from io import StringIO
 from typing import List
 from fastapi import FastAPI, Request, Query
@@ -45,9 +46,14 @@ async def process_plot_data(    request: Request,
     if not validate_dataframe(df, smiles_column):
         return {"error": "SMILES not found"}
     
-    result_df = analyze_plot_data(df, smiles_column, dim_red_method, fingerprint_type, remove_outliers, outlier_percentage, number_neighbors_umap)
+    result_df, smiles_fps_df = analyze_plot_data(df, smiles_column, dim_red_method, fingerprint_type, remove_outliers, outlier_percentage, number_neighbors_umap)
 
-    return result_df.to_json()
+    response = {
+    "visualizationData": result_df.to_dict(),
+    "fingerprints": smiles_fps_df.to_dict(orient="records"),
+}
+
+    return response
 
 @app.post("/api/similarityData")
 async def process_similarity_data(    request: Request,
@@ -70,6 +76,12 @@ async def process_similarity_data(    request: Request,
     
     validate_target_smiles(target_smiles)
     
-    result_df = analyze_similarity_data(df, smiles_column, target_smiles, fingerprint_type)
+    result_df, smiles_fps_df, target_smiles_fps_df = analyze_similarity_data(df, smiles_column, target_smiles, fingerprint_type)
 
-    return result_df.to_json(orient="records")
+    response = {
+    "similarityData": result_df.to_dict(orient="records"),
+    "fingerprints": smiles_fps_df.to_dict(orient="records"),
+    "targetFingerprints": target_smiles_fps_df.to_dict(orient="records"),
+    }
+
+    return response

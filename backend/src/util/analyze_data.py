@@ -234,7 +234,11 @@ def analyze_plot_data(df: pd.DataFrame, smiles_column: str, dim_red_method: str,
     # Concatenate PCA results with df containing other data
     final_df = pd.concat([df_with_svg, principal_df], axis=1)
 
-    return final_df
+    # Generate dataframe containing smiles and fingerprints
+    smiles_df = pd.DataFrame({"SMILES": df_with_mols[smiles_column]})
+    smiles_fps_df = pd.concat([smiles_df, fingerprint_df], axis=1)
+
+    return final_df, smiles_fps_df
 
 
 def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles: list, fingerprint_type: str):
@@ -275,9 +279,10 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
         if fingerprint_type == "Chemeleon" or fingerprint_type == "ChembertaMLM" or fingerprint_type == "ChembertaMTR":
             # L2 normalize target fingerprint
             target_norm = normalize(target_fingerprint, norm="l2")
+            target_fingerprint = target_norm[0]
 
             # Calculate cosine similarity
-            similarities = fingerprint_list @ target_norm[0]
+            similarities = fingerprint_list @ target_fingerprint
             similarities_df = pd.DataFrame({f"Similarity {target}": similarities})
 
 
@@ -289,7 +294,31 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
 
         final_df.drop(columns=["smilespace_mol"], axis=1, inplace=True)
 
-        return final_df
+        # Convert fingerprints from rdkit bit vectors to numpy arrays
+        if fingerprint_type == "Morgan" or fingerprint_type == "Topological" or fingerprint_type == "MACCS":
+            fp_arrays = []
+            for fingerprint in fingerprint_list:
+                fingerprint_arr = np.zeros((0,), dtype=int)
+                DataStructs.ConvertToNumpyArray(fingerprint, fingerprint_arr)
+                fp_arrays.append(fingerprint_arr)
+
+            fingerprint_arr = np.zeros((0,), dtype=int)
+            DataStructs.ConvertToNumpyArray(target_fingerprint, fingerprint_arr)
+
+            fingerprint_list = fp_arrays
+            target_fingerprint = fingerprint_arr
+
+        # Generate dataframe containing smiles and fingerprints
+        fingerprint_df = pd.DataFrame(fingerprint_list)
+        smiles_df = pd.DataFrame({"SMILES": df_with_mols[smiles_column]})
+        smiles_fps_df = pd.concat([smiles_df, fingerprint_df], axis=1)
+
+        # Generate dataframe containing target molecule smiles and fingerprints
+        target_fingerprint_df = pd.DataFrame([target_fingerprint])
+        target_smiles_df = pd.DataFrame({"SMILES": target_smiles})
+        target_smiles_fps_df = pd.concat([target_smiles_df, target_fingerprint_df], axis=1)
+
+        return final_df, smiles_fps_df, target_smiles_fps_df
     
     else:
         target_mols = [MolFromSmiles(target, sanitize=True) for target in target_smiles]
@@ -327,10 +356,10 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
 
         if fingerprint_type == "Chemeleon" or fingerprint_type == "ChembertaMLM" or fingerprint_type == "ChembertaMTR":
             # L2 normalize fingerprints
-            targets_norm = normalize(target_fingerprints, norm="l2")
+            target_fingerprints = normalize(target_fingerprints, norm="l2")
 
             # Calculate cosine simialrity
-            for target_fingerprint, target in zip(targets_norm, target_smiles):
+            for target_fingerprint, target in zip(target_fingerprints, target_smiles):
                 similarities = fingerprint_list @ target_fingerprint
                 similarities_df[f"Similarity {target}"] = similarities
 
@@ -347,7 +376,34 @@ def analyze_similarity_data(df: pd.DataFrame, smiles_column: str, target_smiles:
 
         final_df.drop(columns=["smilespace_mol"], axis=1, inplace=True)
 
-        return final_df
+        # Convert fingerprints from rdkit bit vectors to numpy arrays
+        if fingerprint_type == "Morgan" or fingerprint_type == "Topological" or fingerprint_type == "MACCS":
+            fp_arrays = []
+            for fingerprint in fingerprint_list:
+                fingerprint_arr = np.zeros((0,), dtype=int)
+                DataStructs.ConvertToNumpyArray(fingerprint, fingerprint_arr)
+                fp_arrays.append(fingerprint_arr)
+
+            target_fp_arrays = []
+            for fingerprint in target_fingerprints:
+                fingerprint_arr = np.zeros((0,), dtype=int)
+                DataStructs.ConvertToNumpyArray(fingerprint, fingerprint_arr)
+                target_fp_arrays.append(fingerprint_arr)
+
+            fingerprint_list = fp_arrays
+            target_fingerprints = target_fp_arrays
+
+        # Generate dataframe containing smiles and fingerprints
+        fingerprint_df = pd.DataFrame(fingerprint_list)
+        smiles_df = pd.DataFrame({"SMILES": df_with_mols[smiles_column]})
+        smiles_fps_df = pd.concat([smiles_df, fingerprint_df], axis=1)
+
+        # Generate dataframe containing target molecule smiles and fingerprints
+        target_fingerprint_df = pd.DataFrame(target_fingerprints)
+        target_smiles_df = pd.DataFrame({"SMILES": target_smiles})
+        target_smiles_fps_df = pd.concat([target_smiles_df, target_fingerprint_df], axis=1)
+
+        return final_df, smiles_fps_df, target_smiles_fps_df
 
 
 
