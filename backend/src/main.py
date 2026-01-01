@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from util.validation import validate_dataframe, validate_target_smiles
 from util.analyze_data import analyze_plot_data
 from util.analyze_data import analyze_similarity_data
+from util.sanitize_df import df_to_json_safe_dict
 
 app = FastAPI()
 
@@ -49,12 +50,11 @@ async def process_plot_data(    request: Request,
     result_df, smiles_fps_df = analyze_plot_data(df, smiles_column, dim_red_method, fingerprint_type, remove_outliers, outlier_percentage, number_neighbors_umap)
 
     response = {
-    "visualizationData": result_df.to_dict(),
-    "fingerprints": smiles_fps_df.to_dict(orient="records"),
-}
+    "visualizationData": df_to_json_safe_dict(result_df),
+    "fingerprints": df_to_json_safe_dict(smiles_fps_df, orient="records"),
+    }
 
     return response
-
 @app.post("/api/similarityData")
 async def process_similarity_data(    request: Request,
     smiles_column: str = Query(..., alias="smilesColumn"),
@@ -79,9 +79,9 @@ async def process_similarity_data(    request: Request,
     result_df, smiles_fps_df, target_smiles_fps_df = analyze_similarity_data(df, smiles_column, target_smiles, fingerprint_type)
 
     response = {
-    "similarityData": result_df.to_dict(orient="records"),
-    "fingerprints": smiles_fps_df.to_dict(orient="records"),
-    "targetFingerprints": target_smiles_fps_df.to_dict(orient="records"),
+    "similarityData": df_to_json_safe_dict(result_df,orient="records"),
+    "fingerprints": df_to_json_safe_dict(smiles_fps_df, orient="records"),
+    "targetFingerprints": df_to_json_safe_dict(target_smiles_fps_df, orient="records"),
     }
 
     return response
