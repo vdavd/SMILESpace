@@ -39,6 +39,10 @@ const MoleculeInfo = ({
         if (properties.CID != 0) {
           const moleculeData: MoleculeProperties = {
             cid: properties.CID,
+            title: {
+              value: properties.Title,
+              label: "Name",
+            },
             formula: {
               value: properties.MolecularFormula,
               label: "Molecular Formula",
@@ -134,7 +138,7 @@ const MoleculeInfo = ({
                   {Object.entries(moleculeProperties)
                     .filter(([key, _value]) => key !== "cid")
                     .map(([key, { value, label }]) => (
-                      <ListItem key={key} disableGutters>
+                      <ListItem key={key} disableGutters sx={{ py: 0.5 }}>
                         <ListItemText
                           primary={
                             <Typography
@@ -198,15 +202,15 @@ const MoleculeInfo = ({
                     pt: 2,
                   }}
                 >
-                  {Array.from({ length: 7 }).map((_, i) => (
+                  {Array.from({ length: 8 }).map((_, i) => (
                     <>
                       <Skeleton
-                        sx={{ mt: 3, mb: 1 }}
+                        sx={{ mt: 2, mb: 1 }}
                         variant="rectangular"
                         width="90%"
                         height="1.2rem"
                         animation="wave"
-                        key={i}
+                        key={i.toString() + "a"}
                       />
                       <Skeleton
                         sx={{}}
@@ -214,12 +218,12 @@ const MoleculeInfo = ({
                         width="30%"
                         height="1rem"
                         animation="wave"
-                        key={i}
+                        key={i.toString() + "b"}
                       />
                     </>
                   ))}
                   <Skeleton
-                    sx={{ borderRadius: 1, my: 2 }}
+                    sx={{ borderRadius: 1, mt: 3 }}
                     variant="rectangular"
                     width="85%"
                     height="3rem"

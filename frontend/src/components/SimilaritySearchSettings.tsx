@@ -65,7 +65,6 @@ const SimilaritySearchSettings = ({
         const data = await uploadSimilarityData(parsedFile, params);
         const fingerprints = data.fingerprints;
         const targetFingerprints = data.targetFingerprints;
-        console.log(fingerprints);
         setSimilarityFingerprints(fingerprints);
         setTargetFingerprints(targetFingerprints);
         setSimilarityData(JSON.stringify(data.similarityData));

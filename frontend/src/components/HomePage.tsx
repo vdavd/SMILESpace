@@ -364,7 +364,7 @@ const HomePage = () => {
                   PCA or UMAP projections using multiple fingerprint and
                   embedding types, enabling visual similarity analysis, compound
                   highlighting, and fast similarity searches between target
-                  molecules and chemical libraries—no programming required.
+                  molecules and chemical libraries.
                 </Typography>
               </Box>
             </Fade>

@@ -43,6 +43,7 @@ type LabeledValue<T> = {
 
 export interface MoleculeProperties {
   cid: string;
+  title: LabeledValue<string>;
   formula: LabeledValue<string>;
   molWeight: LabeledValue<number>;
   LogP: LabeledValue<number>;
