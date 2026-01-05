@@ -1,3 +1,6 @@
+export const FILE_ROW_LIMIT = 3000;
+export const MAX_FILE_SIZE_MB = 10;
+
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 export const apiBaseUrl = baseUrl + "/api";
 

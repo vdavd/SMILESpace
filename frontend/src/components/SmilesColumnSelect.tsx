@@ -35,7 +35,7 @@ const SmilesColumnSelect = ({
         onChange={handleSmilesColumnChange}
       >
         {columns
-          .filter((column) => column !== "id")
+          .filter((column) => column !== "id" && column !== "molSimToolId")
           .map((column) => (
             <MenuItem value={column}>{column}</MenuItem>
           ))}

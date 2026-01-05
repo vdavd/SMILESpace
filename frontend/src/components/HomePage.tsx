@@ -144,6 +144,9 @@ const HomePage = () => {
                 <SelectFile
                   size="small"
                   setFile={setFile}
+                  setRows={setRows}
+                  setColumns={setColumns}
+                  setParsedFile={setParsedFile}
                   setSmilesColumn={setSmilesColumn}
                   setLabelColumn={setLabelColumn}
                   setAnalyzedData={setAnalyzedData}
@@ -177,6 +180,8 @@ const HomePage = () => {
                   analyzedData={analyzedData}
                   targetSmiles={targetSmiles}
                   setTargetSmiles={setTargetSmiles}
+                  setFileSelectError={setFileSelectError}
+                  setFile={setFile}
                 />
                 <AnalysisModeSelect
                   analysisMode={analysisMode}
@@ -310,6 +315,9 @@ const HomePage = () => {
                 <SelectFile
                   size="large"
                   setFile={setFile}
+                  setRows={setRows}
+                  setColumns={setColumns}
+                  setParsedFile={setParsedFile}
                   setSmilesColumn={setSmilesColumn}
                   setLabelColumn={setLabelColumn}
                   setAnalyzedData={setAnalyzedData}
@@ -333,6 +341,10 @@ const HomePage = () => {
                 <SelectExampleData
                   setFile={setFile}
                   setFileReady={setFileReady}
+                  setRows={setRows}
+                  setColumns={setColumns}
+                  setParsedFile={setParsedFile}
+                  setSmilesColumn={setSmilesColumn}
                   setLabelColumn={setLabelColumn}
                   setLabelType={setLabelType}
                   setFileSelectError={setFileSelectError}

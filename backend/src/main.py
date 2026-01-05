@@ -5,6 +5,7 @@ from io import StringIO
 from typing import List
 from fastapi import FastAPI, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from util.validation import validate_dataframe, validate_target_smiles
 from util.analyze_data import analyze_plot_data
 from util.analyze_data import analyze_similarity_data
@@ -21,6 +22,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
     )
+
+
+app.add_middleware(
+    GZipMiddleware,
+    minimum_size=1000  # bytes
+)
 
 @app.get("/")
 def root():
@@ -49,11 +56,13 @@ async def process_plot_data(    request: Request,
     
     result_df, smiles_fps_df = analyze_plot_data(df, smiles_column, dim_red_method, fingerprint_type, remove_outliers, outlier_percentage, number_neighbors_umap)
 
+    print("dataframe to dict...")
     response = {
     "visualizationData": df_to_json_safe_dict(result_df),
     "fingerprints": df_to_json_safe_dict(smiles_fps_df, orient="records"),
     }
 
+    print("sending dict...")
     return response
 @app.post("/api/similarityData")
 async def process_similarity_data(    request: Request,

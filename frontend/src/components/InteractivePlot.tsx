@@ -58,6 +58,7 @@ const InteractivePlot = ({
       title: {
         text: labelColumn,
       },
+      itemsizing: "constant",
     },
   });
   const [zoomedView, setZoomedView] = useState(false);
@@ -145,12 +146,24 @@ const InteractivePlot = ({
     }));
   }, [analyzedData]);
 
+  // Set legend title when label column changes
+  useEffect(() => {
+    setLayout((prev) => ({
+      ...prev,
+      legend: {
+        title: {
+          text: labelColumn,
+        },
+        itemsizing: "constant",
+      },
+    }));
+  }, [labelColumn]);
+
   useEffect(() => {
     const generateTraces = () => {
       if (parsedData && labelType === "categorical") {
-        // Find and sort categorical labels
+        // Find categorical labels
         const labels = [...new Set(parsedData.map((pd) => pd.label))];
-        labels.sort();
 
         // Check that number of labels isn't over 30
         if (labels.length > 30) {
@@ -160,15 +173,37 @@ const InteractivePlot = ({
           return;
         }
 
+        // Sort labels
+        const sortedLabels = labels
+          .map((v, index) => {
+            const num = Number(v);
+            return {
+              value: v,
+              isNumber: Number.isFinite(num),
+              num,
+              index,
+            };
+          })
+          .sort((a, b) => {
+            if (a.isNumber && b.isNumber) {
+              return a.num - b.num;
+            }
+            if (a.isNumber) return -1;
+            if (b.isNumber) return 1;
+
+            return a.index - b.index;
+          })
+          .map(({ value }) => value);
+
         // Create color palette for labels
         const labelsWithColor = Object.fromEntries(
-          labels.map((key, i) => [key, colorPalette50[i]])
+          sortedLabels.map((key, i) => [key, colorPalette50[i]])
         );
 
         // Recolor the SVG images with respect to their label
         const colorSvgsCategorical = () => {
           const coloredPlotData = parsedData.map((pd) => {
-            const color = colorPalette50[labels.indexOf(pd.label)];
+            const color = colorPalette50[sortedLabels.indexOf(pd.label)];
             const coloredSvg = pd.svg.replace(/000000/g, color.slice(-6));
             return {
               ...pd,
@@ -207,23 +242,24 @@ const InteractivePlot = ({
         ];
 
         // Define and set the traces
-        const categorical_traces: PlotParams["data"] = labels.map((label) => {
-          const group = traceData.filter((d) => d.label === label);
-          return {
-            x: group.map((d) => d.pc1),
-            y: group.map((d) => d.pc2),
-            mode: "markers",
-            type: "scatter",
-            name: label.toString(),
-            marker: {
-              color: labelsWithColor[label.toString()],
-              size: 8,
-              opacity: zoomedView ? 0 : 1,
-            },
-            showlegend: true,
-            hoverinfo: "none",
-          };
-        });
+        const categorical_traces: PlotParams["data"] = sortedLabels.map(
+          (label) => {
+            const group = traceData.filter((d) => d.label === label);
+            return {
+              x: group.map((d) => d.pc1),
+              y: group.map((d) => d.pc2),
+              mode: "markers",
+              type: "scatter",
+              name: label.toString(),
+              marker: {
+                color: labelsWithColor[label.toString()],
+                size: zoomedView ? 0.00001 : 8,
+              },
+              showlegend: true,
+              hoverinfo: "none",
+            };
+          }
+        );
         setTraces(categorical_traces.concat(highlightedTraces));
       } else if (parsedData && labelType === "continuous") {
         // Get label values as numbers

@@ -24,7 +24,6 @@ const LabelColumnSelect = ({
 }: LabelColumnSelectProps) => {
   const handleLabelColumnChange = (event: SelectChangeEvent) => {
     const selectedColumn = event.target.value;
-    setLabelColumn(event.target.value);
 
     // use number of unique values to guess whether the label is continuous or categorical
     const columnValues = rows.map(
@@ -39,6 +38,7 @@ const LabelColumnSelect = ({
     } else {
       setLabelType("continuous");
     }
+    setLabelColumn(event.target.value);
   };
   return (
     <FormControl fullWidth>
@@ -54,7 +54,7 @@ const LabelColumnSelect = ({
         onChange={handleLabelColumnChange}
       >
         {columns
-          .filter((column) => column !== "id")
+          .filter((column) => column !== "id" && column !== "molSimToolId")
           .map((column) => (
             <MenuItem value={column}>{column}</MenuItem>
           ))}

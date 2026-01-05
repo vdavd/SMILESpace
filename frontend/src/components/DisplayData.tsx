@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import Papa from "papaparse";
 import type { RowObject } from "../types";
 import SearchToolbar from "./CustomToolbar";
+import { FILE_ROW_LIMIT } from "../constants";
 
 interface DisplayDataProps {
   file: File | null;
@@ -24,6 +25,8 @@ interface DisplayDataProps {
   analyzedData: string;
   targetSmiles: string[];
   setTargetSmiles: (targetSmiles: string[]) => void;
+  setFileSelectError: (fileSelectError: string | null) => void;
+  setFile: (file: File | null) => void;
 }
 
 const DisplayData = ({
@@ -40,6 +43,8 @@ const DisplayData = ({
   analyzedData,
   targetSmiles,
   setTargetSmiles,
+  setFileSelectError,
+  setFile,
 }: DisplayDataProps) => {
   const [rowSelectionModel, setRowSelectionModel] =
     useState<GridRowSelectionModel>({
@@ -49,35 +54,6 @@ const DisplayData = ({
   const [missingRowIds, setMissingRowIds] = useState<number[]>([]);
 
   const gridApiRef = useGridApiRef();
-
-  useEffect(() => {
-    if (file != null) {
-      Papa.parse(file, {
-        complete: (results) => {
-          const data = results.data as object[];
-          const columns = Object.keys(data[0]);
-
-          const dataWithIds = data.map((item, index) => ({
-            molSimToolId: index,
-            ...item,
-          }));
-          setRows(dataWithIds);
-          const colsWithID = ["molSimToolId", ...columns];
-          setColumns(colsWithID);
-          setParsedFile(Papa.unparse(dataWithIds));
-          // look for a smiles column in the data and automaticlly set it if found
-          const smilesColumnCandidates = columns.filter((column) =>
-            column.toLowerCase().includes("smiles")
-          );
-          if (smilesColumnCandidates.length !== 0) {
-            setSmilesColumn(smilesColumnCandidates[0]);
-          }
-        },
-        header: true,
-        skipEmptyLines: true,
-      });
-    }
-  }, [file, setParsedFile, setSmilesColumn]);
 
   useEffect(() => {
     const findMissingIds = (analyzedData: string, rows: RowObject[]) => {
