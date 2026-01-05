@@ -2,7 +2,7 @@ import { DataGrid, type GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import SearchToolbar from "./CustomToolbar";
 import { Paper, Stack, Typography, Zoom } from "@mui/material";
-import DownloadFingerprints from "./DownloadFingerprintsSeparateEdnpoint";
+import DownloadFingerprints from "./DownloadFingerprints";
 
 interface SimilaritySearchresultProps {
   similarityData: string;

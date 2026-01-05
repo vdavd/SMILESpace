@@ -52,3 +52,17 @@ export const uploadSimilarityData = async (
     }
   }
 };
+
+export const downloadFingerprints = async (fingerprintUrl: string) => {
+  const url = apiBaseUrl + fingerprintUrl;
+  try {
+    const response = await axios.get(url, {
+      responseType: "blob",
+    });
+
+    return response;
+  } catch (err: any) {
+    console.error(err.response.data.detail);
+    throw new Error(err.response.data.detail);
+  }
+};

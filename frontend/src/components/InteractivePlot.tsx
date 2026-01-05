@@ -8,7 +8,7 @@ import { Box, Fade, Paper, Slider, Typography, Zoom } from "@mui/material";
 import type { DimRedMethodType } from "../types";
 import type { PlotDataObject } from "../types";
 import MoleculeInfo from "./MoleculeInfo";
-import DownloadFingerprints from "./DownloadFingerprintsSeparateEdnpoint";
+import DownloadFingerprints from "./DownloadFingerprints";
 
 interface InteractivePlotProps {
   analyzedData: string;
@@ -370,8 +370,8 @@ const InteractivePlot = ({
           (pd) => pd.pc1 >= x0 && pd.pc1 <= x1 && pd.pc2 >= y0 && pd.pc2 <= y1
         );
 
-        if (zoomedData.length < 250) {
-          // only display molecules if less than 250 are in view
+        if (zoomedData.length < 300) {
+          // only display molecules if less than 300 are in view
           const molecularImages: Partial<Image>[] = zoomedData.map((pd) => ({
             source: pd.svg,
             x: pd.pc1,
@@ -429,7 +429,7 @@ const InteractivePlot = ({
     if (layout.images && zoomedView) {
       const newImages = layout.images.map((image) => ({
         ...image,
-        opacity: image.x === x && image.y === y ? 1.0 : 0.15,
+        opacity: image.x === x && image.y === y ? 1.0 : 0.22,
       }));
 
       setLayout((prev) => ({

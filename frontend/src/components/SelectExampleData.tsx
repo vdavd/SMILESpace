@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-import exampleDataUrl from "../data/example_data_BBB.csv";
+import exampleDataUrl from "../data/example_data_BBBP.csv";
 import type { LabelType, RowObject } from "../types";
 import Papa from "papaparse";
 import { FILE_ROW_LIMIT } from "../constants";
@@ -15,7 +15,7 @@ interface SelectExampleDataProps {
   setLabelType: (labelType: LabelType) => void;
   setFileSelectError: (fileSelectError: string | null) => void;
 }
-const LABEL_COLUMN = "passes_blood_brain_barrier";
+const LABEL_COLUMN = "Passes blood-brain barrier";
 const LABEL_TYPE: LabelType = "categorical";
 
 const SelectExampleData = ({
@@ -74,7 +74,7 @@ const SelectExampleData = ({
     const blob = await response.blob();
 
     // Create a File object from the blob
-    const file = new File([blob], "example_data_BBB.csv", { type: blob.type });
+    const file = new File([blob], "example_data_BBBP.csv", { type: blob.type });
     parseFile(file);
 
     setFile(file);

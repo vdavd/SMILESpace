@@ -1,7 +1,7 @@
 # ============================
 # 1. Builder stage
 # ============================
-FROM python:3.10.12 AS builder
+FROM python:3.11.14 AS builder
 
 # Install system packages needed for building dependencies
 RUN apt-get update && apt-get install -y gcc curl && rm -rf /var/lib/apt/lists/*

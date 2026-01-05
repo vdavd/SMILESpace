@@ -1,63 +1,75 @@
-import { Button } from "@mui/material";
-import Papa from "papaparse";
+import { Alert, Button, Snackbar, Tooltip } from "@mui/material";
+import InfoIcon from "@mui/icons-material/Info";
+import { useState } from "react";
+import { downloadFingerprints } from "../services/data";
 
-type DownloadFingerprintsProps = {
-  fingerprintData: Record<string, any>[];
-  filename: string;
+interface DownloadFingerprintsProps {
+  fingerprintDownloadUrl: string;
   buttonText: string;
-};
+}
 
 const DownloadFingerprints = ({
-  fingerprintData,
-  filename,
+  fingerprintDownloadUrl,
   buttonText,
 }: DownloadFingerprintsProps) => {
-  const handleDownload = () => {
-    if (fingerprintData.length === 0) return;
+  const [errorOpen, setErrorOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    const columns = Object.keys(fingerprintData[0]);
-    const columns_ordered = [
-      "SMILES",
-      ...columns.filter((col) => col !== "SMILES"),
-    ];
+  const handleDownload = async () => {
+    setLoading(true);
 
-    const rows_ordered = fingerprintData.map((row) => {
-      const row_ordered = [
-        row.SMILES,
-        ...Object.entries(row)
-          .filter(([key]) => key !== "SMILES")
-          .map(([, value]) => value),
-      ];
+    try {
+      const response = await downloadFingerprints(fingerprintDownloadUrl);
 
-      return row_ordered;
-    });
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
 
-    const data = { fields: columns_ordered, data: rows_ordered };
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+      link.download = "fingerprints.csv.gz";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
 
-    const csv = Papa.unparse(data);
-
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(link.href);
+    } catch (err: any) {
+      setErrorOpen(true);
+    } finally {
+      setLoading(false);
+    }
   };
-
   return (
-    <Button
-      variant="text"
-      onClick={handleDownload}
-      disabled={!fingerprintData}
-      sx={{ width: "30%" }}
-    >
-      {buttonText}
-    </Button>
+    <>
+      <Button
+        variant="text"
+        onClick={handleDownload}
+        disabled={loading}
+        sx={{ width: "30%" }}
+      >
+        {loading ? "Downloading fingerprints..." : buttonText}
+        <Tooltip
+          title="Fingerprints are available for download for 30 minutes after analysis"
+          placement="right"
+        >
+          <InfoIcon fontSize="small" sx={{ ml: 1 }} />
+        </Tooltip>
+      </Button>
+      <Snackbar
+        open={errorOpen}
+        autoHideDuration={6000}
+        onClose={() => setErrorOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setErrorOpen(false)}
+          severity="warning"
+          sx={{ width: "100%" }}
+        >
+          Fingerprints expired. Please re-run the analysis.
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 
