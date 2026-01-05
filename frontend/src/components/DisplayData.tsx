@@ -6,10 +6,8 @@ import {
 import type { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import Papa from "papaparse";
 import type { RowObject } from "../types";
 import SearchToolbar from "./CustomToolbar";
-import { FILE_ROW_LIMIT } from "../constants";
 
 interface DisplayDataProps {
   file: File | null;
@@ -34,17 +32,11 @@ const DisplayData = ({
   rows,
   columns,
   smilesColumn,
-  setRows,
-  setColumns,
-  setParsedFile,
   highlightedSmiles,
-  setSmilesColumn,
   setHighlightedSmiles,
   analyzedData,
   targetSmiles,
   setTargetSmiles,
-  setFileSelectError,
-  setFile,
 }: DisplayDataProps) => {
   const [rowSelectionModel, setRowSelectionModel] =
     useState<GridRowSelectionModel>({

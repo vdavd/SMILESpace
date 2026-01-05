@@ -19,10 +19,8 @@ interface SimilaritySearchSettingsProps {
   setSimilarityAnalysisInProcess: (
     similarityAnalysisInProcess: boolean
   ) => void;
-  setSimilarityFingerprints: (
-    similarityFingerprints: Record<string, any>[]
-  ) => void;
-  setTargetFingerprints: (targetFingerprints: Record<string, any>[]) => void;
+  setSimilarityFingerprintUrl: (similarityFingerprintUrl: string) => void;
+  setTargetFingerprintUrl: (targetFingerprintUrl: string) => void;
 }
 
 const SimilaritySearchSettings = ({
@@ -35,8 +33,8 @@ const SimilaritySearchSettings = ({
   setSimilarityData,
   similarityAnalysisInProcess,
   setSimilarityAnalysisInProcess,
-  setSimilarityFingerprints,
-  setTargetFingerprints,
+  setSimilarityFingerprintUrl,
+  setTargetFingerprintUrl,
 }: SimilaritySearchSettingsProps) => {
   const [similarityDataError, setSimilarityDataError] = useState("");
   const [fingerPrintType, setFingerPrintType] =
@@ -63,10 +61,8 @@ const SimilaritySearchSettings = ({
       try {
         setSimilarityAnalysisInProcess(true);
         const data = await uploadSimilarityData(parsedFile, params);
-        const fingerprints = data.fingerprints;
-        const targetFingerprints = data.targetFingerprints;
-        setSimilarityFingerprints(fingerprints);
-        setTargetFingerprints(targetFingerprints);
+        setSimilarityFingerprintUrl(data.fingerprintDownloadUrl);
+        setTargetFingerprintUrl(data.targetFingerprintDownloadUrl);
         setSimilarityData(JSON.stringify(data.similarityData));
         setSimilarityAnalysisInProcess(false);
       } catch (err: any) {

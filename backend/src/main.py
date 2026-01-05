@@ -3,13 +3,17 @@ import pandas as pd
 import json
 from io import StringIO
 from typing import List
-from fastapi import FastAPI, Request, Query
+from fastapi import FastAPI, Request, Query, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from util.temp_file_cleanup import start_scheduler
 from util.validation import validate_dataframe, validate_target_smiles
 from util.analyze_data import analyze_plot_data
 from util.analyze_data import analyze_similarity_data
 from util.sanitize_df import df_to_json_safe_dict
+from util.save_fingerprints import save_fingerprints_csv_gz
+from util.config import TMP_DIR
 
 app = FastAPI()
 
@@ -28,6 +32,10 @@ app.add_middleware(
     GZipMiddleware,
     minimum_size=1000  # bytes
 )
+
+@app.on_event("startup")
+def startup():
+    start_scheduler()
 
 @app.get("/")
 def root():
@@ -56,14 +64,15 @@ async def process_plot_data(    request: Request,
     
     result_df, smiles_fps_df = analyze_plot_data(df, smiles_column, dim_red_method, fingerprint_type, remove_outliers, outlier_percentage, number_neighbors_umap)
 
-    print("dataframe to dict...")
+    job_id = save_fingerprints_csv_gz(smiles_fps_df)
+
     response = {
     "visualizationData": df_to_json_safe_dict(result_df),
-    "fingerprints": df_to_json_safe_dict(smiles_fps_df, orient="records"),
+    "fingerprintDownloadUrl": f"/download/fingerprints/{job_id}",
     }
 
-    print("sending dict...")
     return response
+
 @app.post("/api/similarityData")
 async def process_similarity_data(    request: Request,
     smiles_column: str = Query(..., alias="smilesColumn"),
@@ -87,10 +96,26 @@ async def process_similarity_data(    request: Request,
     
     result_df, smiles_fps_df, target_smiles_fps_df = analyze_similarity_data(df, smiles_column, target_smiles, fingerprint_type)
 
+    job_id = save_fingerprints_csv_gz(smiles_fps_df)
+    target_job_id = save_fingerprints_csv_gz(target_smiles_fps_df)
+
     response = {
     "similarityData": df_to_json_safe_dict(result_df,orient="records"),
-    "fingerprints": df_to_json_safe_dict(smiles_fps_df, orient="records"),
-    "targetFingerprints": df_to_json_safe_dict(target_smiles_fps_df, orient="records"),
+    "fingerprintDownloadUrl": f"/download/fingerprints/{job_id}",
+    "targetFingerprintDownloadUrl": f"/download/fingerprints/{target_job_id}"
     }
 
     return response
+
+@app.get("/api/download/fingerprints/{job_id}")
+def download_fingerprints(job_id: str):
+    file_path = TMP_DIR / f"{job_id}.csv.gz"
+
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File expired")
+
+    return FileResponse(
+        path=file_path,
+        media_type="application/gzip",
+        filename="fingerprints.csv.gz",
+    )

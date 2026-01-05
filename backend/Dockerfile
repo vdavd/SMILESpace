@@ -26,7 +26,7 @@ RUN poetry install --no-root
 # ============================
 # 2. Final runtime image
 # ============================
-FROM python:3.10.12
+FROM python:3.11.14
 
 # Copy installed dependencies from builder image
 COPY --from=builder /usr/local /usr/local

@@ -60,15 +60,10 @@ const HomePage = () => {
     useState<AnalysisMode>("Visualization");
   const [targetSmiles, setTargetSmiles] = useState<string[]>([]);
   const [similarityData, setSimilarityData] = useState("");
-  const [fingerprintData, setFingerprintData] = useState<Record<string, any>[]>(
-    []
-  );
-  const [similarityFingerprints, setSimilarityFingerprints] = useState<
-    Record<string, any>[]
-  >([]);
-  const [targetFingerprints, setTargetFingerprints] = useState<
-    Record<string, any>[]
-  >([]);
+  const [visualizationFingerprintUrl, setVisualizationFingerprintUrl] =
+    useState("");
+  const [similarityFingerprintUrl, setSimilarityFingerprintUrl] = useState("");
+  const [targetFingerprintUrl, setTargetFingerprintUrl] = useState("");
 
   const visualizationScrollTargetRef = useRef<HTMLDivElement>(null);
   const similarityScrollTargetRef = useRef<HTMLDivElement>(null);
@@ -234,7 +229,7 @@ const HomePage = () => {
                       }
                       plotDataError={plotDataError}
                       setPlotDataError={setPlotDataError}
-                      setFingerprintData={setFingerprintData}
+                      setFingerprintUrl={setVisualizationFingerprintUrl}
                     />
                   </>
                 )}
@@ -251,8 +246,8 @@ const HomePage = () => {
                     setSimilarityAnalysisInProcess={
                       setSimilarityAnalysisInProcess
                     }
-                    setSimilarityFingerprints={setSimilarityFingerprints}
-                    setTargetFingerprints={setTargetFingerprints}
+                    setSimilarityFingerprintUrl={setSimilarityFingerprintUrl}
+                    setTargetFingerprintUrl={setTargetFingerprintUrl}
                   />
                 )}
               </Paper>
@@ -272,7 +267,7 @@ const HomePage = () => {
                     dimRedMethod={dimRedMethod}
                     removeOutliers={removeOutliers}
                     setPlotDataError={setPlotDataError}
-                    fingerprintData={fingerprintData}
+                    visualizationFingerprintUrl={visualizationFingerprintUrl}
                   />
                 )
               )}
@@ -282,8 +277,8 @@ const HomePage = () => {
               {similarityData && (
                 <SimilaritySearchResult
                   similarityData={similarityData}
-                  similarityFingerprints={similarityFingerprints}
-                  targetFingerprints={targetFingerprints}
+                  similarityFingerprintUrl={similarityFingerprintUrl}
+                  targetFingerprintUrl={targetFingerprintUrl}
                 />
               )}
             </div>

@@ -234,7 +234,6 @@ def analyze_plot_data(df: pd.DataFrame, smiles_column: str, dim_red_method: str,
     # Concatenate PCA results with df containing other data
     final_df = pd.concat([df_with_svg, principal_df], axis=1)
 
-    print("generating fingerprint data...")
     # Generate dataframe containing smiles and fingerprints
     smiles_df = pd.DataFrame({"SMILES": df_with_mols[smiles_column]})
     smiles_fps_df = pd.concat([smiles_df, fingerprint_df], axis=1)
