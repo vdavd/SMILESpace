@@ -39,7 +39,9 @@ const FileSelect = ({
           const data = results.data as object[];
 
           if (data.length > FILE_ROW_LIMIT) {
-            setFileSelectError(`Maximum number of rows: ${FILE_ROW_LIMIT}`);
+            setFileSelectError(
+              `Maximum number of rows allowed: ${FILE_ROW_LIMIT}`
+            );
             resolve(false);
             return;
           }
